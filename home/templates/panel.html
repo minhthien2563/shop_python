@@ -1,0 +1,419 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Vegefoods | Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style type="text/css">
+      body {
+        margin-top: 20px;
+        background: #f8f8f8;
+      }
+    </style>
+
+  </head>
+  <body>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" />
+    <div class="container">
+      <div class="row flex-lg-nowrap">
+        <div class="col-12 col-lg-auto mb-3" style="width: 200px;">
+          <div class="card p-3">
+            <div class="e-navlist e-navlist--active-bg">
+              <ul class="nav">
+                <li class="nav-item">
+                  <a class="nav-link px-2 active" href="{% url 'toHome' %}"><i class="fa fa-fw fa-bar-chart mr-1"></i><span>Overview</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link px-2" href="https://www.bootdey.com/snippets/view/bs4-crud-users" target="__blank"><i class="fa fa-fw fa-th mr-1"></i><span>CRUD</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link px-2" href="https://www.bootdey.com/snippets/view/bs4-edit-profile-page" target="__blank"><i class="fa fa-fw fa-cog mr-1"></i><span>Settings</span></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          
+          <div class="row flex-lg-nowrap">
+            <div class="col mb-3">
+              <div class="e-panel card">
+                <div class="card-body">
+                  <div class="card-title">
+                    <h6 class="mr-2"><span>Sản phẩm</span><small class="px-1">Quản lý sản phẩm của cửa hàng</small></h6>
+                  </div>
+                  <div class="e-table">
+                    <div class="table-responsive table-lg mt-3">
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th class="text-center">ID</th>
+                            <th class="text-center">Photo</th>
+                            <th class="max-width text-center">Tên sản phẩm</th>
+                            <th class="sortable text-center">Số lượng</th>
+                            <th class="text-center">Hiển thị</th>
+                            <th class="text-center">Hành động</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for product in products %}
+
+                          <tr id="row-product-{{product.id}}">
+                            <td class="text-nowrap align-middle text-center">{{product.id}}</td>
+                            <td class="align-middle text-center">
+                                <div class="bg-light d-inline-flex justify-content-center align-items-center align-top" style="width: 80px; height: 80px; border-radius: 3px;">
+                                    <img class="img-fluid" src="{% static 'images/'|add:product.image %}" alt="Colorlib Template"></img>
+                                </div>
+                            </td>
+                            <td class="text-nowrap align-middle text-center">{{product.name}}</td>
+                            <td class="text-nowrap align-middle text-center">
+                              <span>{{product.amount}}</span>
+                            </td>
+                            <td class="text-center align-middle">
+                              <input id="checkbox-display-{{product.id}}" class="form-check-input" type="checkbox" onchange="checkboxChange({{product.id}})"
+                              {% if product.display %}
+                              checked                                
+                              {% endif %}
+                                >
+                            </td>
+                            <td class="text-center align-middle">
+                              <div class="btn-group align-top">
+                                <button class="btn btn-sm btn-primary" type="button" data-toggle="modal" data-target="#product-form-modal" data-productid="{{product.id}}" onclick="editProduct({{product.id}})" id="btnModal">Edit</button>
+                                <button class="btn btn-sm btn-danger" type="button" onclick="deleteProduct('{{product.name}}', {{product.id}})"><i class="fa fa-trash"></i></button>
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-3 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center px-xl-3">
+                    <button class="btn btn-success btn-block" type="button" data-toggle="modal"
+                        data-target="#create-form-modal">Thêm sản phẩm mới</button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="modal fade" role="dialog" tabindex="-1" id="product-form-modal">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5  class="modal-title">Chỉnh sửa sản phẩm</h5>
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+              <div class="py-1">
+                <form class="form" novalidate>
+                  
+                  <div class="row">
+                    <div class="col">
+                      <div class="row">
+                        <div class="col">
+                          <p id='modal-productid'>ID: </p>
+                          <div class="form-group">
+                            <label>Tên sản phẩm</label>
+                            <input id="product-name" class="form-control" type="text"/>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Giá tiền</label>
+                            <input id="product-price" class="form-control" type="number" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Giá khuyến mãi</label>
+                            <input id="product-sale" class="form-control" type="number" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Số lượng còn</label>
+                            <input id="product-quantity" class="form-control" type="number" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col mb-3">
+                          <div class="form-group">
+                            <label>Mô tả sản phẩm</label>
+                            <textarea id="product-desc" class="form-control" rows="5"></textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col d-flex justify-content-end">
+                      <button class="btn btn-primary" onclick="changeProduct()">Chỉnh sửa</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" role="dialog" tabindex="-1" id="create-form-modal">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5  class="modal-title">Thêm sản phẩm</h5>
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+              <div class="py-1">
+                <form class="form" novalidate>
+                  
+                  <div class="row">
+                    <div class="col">
+                      <div class="row">
+                        <div class="col">
+                          <p id='modal-productid'>ID: </p>
+                          <div class="form-group">
+                            <label>Tên sản phẩm</label>
+                            <input id="create-product-name" class="form-control" type="text" placeholder="Nhập tên sản phẩm..."/>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Giá tiền</label>
+                            <input id="create-product-price" class="form-control" type="number" placeholder="Nhập giá tiền sản phẩm..."/>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Giá khuyến mãi</label>
+                            <input id="create-product-sale" class="form-control" type="number" placeholder="Nhập giá khuyến mãi..." />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Số lượng còn</label>
+                            <input id="create-product-quantity" class="form-control" type="number" placeholder="Nhập số lượng còn..." />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col mb-3">
+                          <div class="form-group">
+                            <label>Mô tả sản phẩm</label>
+                            <textarea id="create-product-desc" class="form-control" rows="5"></textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Hình ảnh mô tả</label>
+                          <input id="product-image" type="file" name="image">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col d-flex justify-content-end">
+                      <button class="btn btn-primary" onclick="createProduct()">Tạo</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript"></script>
+
+    <script>
+      function checkboxChange(product_id) {
+        console.log(product_id)
+
+        var checkBox = document.getElementById('checkbox-display-'+product_id);
+
+        $.ajax({
+					url: '{% url "displayProduct" %}',
+					data: {'checked': checkBox.checked, 'product_id': product_id},
+					dataType: 'json',
+					success: function(data) {
+						alert('Đã điều chỉnh hiển thị sản phẩm');
+					},
+					error: function(xhr, status, error) {
+						alert('Đã có lỗi xảy ra khi điều chỉnh hiển thị sản phẩm');
+					}
+				});
+      };
+
+      function editProduct(product_id) {
+
+          product = document.getElementById('modal-productid');
+          product.innerHTML = "ID: "+product_id;
+
+          $.ajax({
+            url: '{% url "getProductEdit" %}',
+            data: {'product_id': product_id},
+            dataType: 'json',
+            success: function(data) {
+              var serializedProduct = data.product;
+              var product = JSON.parse(serializedProduct);
+        
+                product_name = document.getElementById('product-name');
+                var productName = product[0].fields.name;
+                product_name.value = productName;
+
+                product_price = document.getElementById('product-price');
+                var productPrice = product[0].fields.price;
+                product_price.value = productPrice;
+
+                product_sale = document.getElementById('product-sale');
+                var productSale = product[0].fields.sale_price;
+                product_sale.value = productSale;
+
+                product_quantity = document.getElementById('product-quantity');
+                var productQuantity = product[0].fields.amount;
+                product_quantity.value = productQuantity;
+
+                product_desc = document.getElementById('product-desc');
+                var productDesc = product[0].fields.desc;
+                product_desc.value = productDesc;
+            },
+            error: function(xhr, status, error) {
+              alert('Đã có lỗi xảy ra khi lấy thông tin sản phẩm');
+              location.reload();
+            }
+          });
+      };
+
+      function changeProduct() {
+        var modalText = document.getElementById('modal-productid').textContent;
+        var productID = modalText.split(': ')[1];
+
+        var productData = {
+          productId: productID,
+          productName: document.getElementById('product-name').value,
+          productPrice: document.getElementById('product-price').value,
+          productSale: document.getElementById('product-sale').value,
+          productQuantity: document.getElementById('product-quantity').value,
+          productDesc: document.getElementById('product-desc').value
+        };
+
+
+        $.ajax({
+          url: '{% url "updateProduct" %}',
+          data: JSON.stringify(productData),
+          dataType: 'json',
+          method: 'POST',
+          success: function(data) {
+            alert("Đã chỉnh sửa sản phẩm thành công");
+          },
+          error: function(xhr, status, error) {
+            alert('Đã có lỗi xảy ra khi lấy thông tin sản phẩm');
+            location.reload();
+          }
+        });
+      };
+
+      function createProduct() {
+
+        var productData = {
+          productName: document.getElementById('create-product-name').value,
+          productPrice: document.getElementById('create-product-price').value,
+          productSale: document.getElementById('create-product-sale').value,
+          productQuantity: document.getElementById('create-product-quantity').value,
+          productDesc: document.getElementById('create-product-desc').value
+        };
+
+        var formData = new FormData();
+        formData.append('productData', JSON.stringify(productData));
+
+        var imageInput = document.getElementById('product-image');
+        var imageFile = imageInput.files[0];
+        formData.append('imageFile', imageFile);
+
+        $.ajax({
+          url: '{% url "createProduct" %}',
+          data: formData,
+          processData: false,
+          contentType: false,
+          dataType: 'json',
+          method: 'POST',
+          success: function(data) {
+            alert("Đã tạo sản phẩm thành công");
+            location.reload();
+          },
+          error: function(xhr, status, error) {
+            if(error == 'image-error') {
+              alert('Bạn chưa tải hình ảnh lên hoặc hình ảnh lỗi');
+              return;
+            }
+            alert('Đã có lỗi xảy ra khi tạo sản phẩm');
+            location.reload();
+          }
+        });
+      };
+
+      function deleteProduct(name, productid) {
+        console.log(productid)
+        if (confirm("Bạn có muốn xóa sản phẩm " + name + " không?")) {
+          $.ajax({
+            url: '{% url "deleteProduct" %}',
+            data: {'product_id': productid},
+            dataType: 'json',
+            method: 'POST',
+            success: function(data) {
+              document.getElementById('row-product-'+productid).remove();
+              alert("Đã xóa sản phẩm thành công");
+              
+            },
+            error: function(xhr, status, error) {
+              if(error = 'not-exist') {
+                alert('Sản phẩm không tồn tại, hãy thử lại');
+                location.reload();
+                return;
+              }
+              alert('Đã có lỗi xảy ra khi xóa sản phẩm');
+              location.reload();
+            }
+          });
+        }
+      }
+
+    </script>
+  </body>
+</html>
